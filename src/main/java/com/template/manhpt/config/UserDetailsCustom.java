@@ -25,7 +25,7 @@ public class UserDetailsCustom implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        com.template.manhpt.entity.User systemUser = userService.getUserByUsername(username);
+        com.template.manhpt.user.entity.User systemUser = userService.getUserByUsername(username);
         if (systemUser == null) {
             throw new UsernameNotFoundException("Không tìm thấy tài khoản: " + username);
         }

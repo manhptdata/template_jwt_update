@@ -11,7 +11,7 @@ import com.template.manhpt.auth.DTO.ReqLoginDTO;
 import com.template.manhpt.auth.DTO.ReqRegisterDTO;
 import com.template.manhpt.auth.DTO.ResLoginDTO;
 import com.template.manhpt.common.exception.IdInvalidException;
-import com.template.manhpt.entity.User;
+import com.template.manhpt.user.entity.User;
 import com.template.manhpt.user.service.UserService;
 import com.template.manhpt.util.SecurityUtil;
 import com.template.manhpt.util.constant.RoleEnum;

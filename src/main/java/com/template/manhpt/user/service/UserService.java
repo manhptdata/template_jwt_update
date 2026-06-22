@@ -1,7 +1,7 @@
 package com.template.manhpt.user.service;
 
 import com.template.manhpt.common.exception.IdInvalidException;
-import com.template.manhpt.entity.User;
+import com.template.manhpt.user.entity.User;
 import com.template.manhpt.user.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

@@ -1,4 +1,4 @@
-package com.template.manhpt.entity;
+package com.template.manhpt.user.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.template.manhpt.util.constant.RoleEnum;

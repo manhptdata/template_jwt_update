@@ -1,340 +1,173 @@
-# Clothing Shop POS — Base Project
+# Spring Boot JWT & Security Template
 
-> Khung dự án Spring Boot cho hệ thống POS cửa hàng quần áo.
-> Đã tích hợp sẵn: **JWT Authentication**, **Phân quyền RBAC**, **Global Exception Handler**, **Swagger UI**.
-> Các thành viên clone về và bắt đầu code module của mình.
-
----
-
-## Tech Stack
-
-| Thành phần | Công nghệ | Phiên bản |
-|---|---|---|
-| Framework | Spring Boot | `3.3.6` |
-| Ngôn ngữ | Java | `17` |
-| Build Tool | Maven | — |
-| Database | MySQL | — |
-| Bảo mật | Spring Security + JWT | OAuth2 Resource Server |
-| ORM | Spring Data JPA | Hibernate |
-| API Docs | SpringDoc OpenAPI | Swagger UI `2.5.0` |
-| Boilerplate | Lombok | — |
+> Đây là dự án mẫu (Template) Spring Boot được cấu hình sẵn hệ thống xác thực **JWT (JSON Web Token)**, **Spring Security**, **Global Exception Handler**, **CORS** và **Swagger UI (OpenAPI)**. 
+> Template này giúp bạn nhanh chóng triển khai các dự án mới mà không cần tốn thời gian cấu hình lại phần bảo mật và xác thực.
 
 ---
 
-## Hướng Dẫn Chạy (Bắt Buộc Đọc)
+## 🛠️ Tech Stack & Thư viện sử dụng
 
-### Bước 1 — Cài đặt
+| Thành phần | Công nghệ / Thư viện | Phiên bản | Mô tả |
+| :--- | :--- | :--- | :--- |
+| **Framework** | Spring Boot | `3.3.6` | Framework chính |
+| **Language** | Java | `17` | Phiên bản Java khuyến nghị |
+| **Build Tool** | Maven | — | Quản lý dự án & dependencies |
+| **Database** | MySQL | — | Hệ quản trị cơ sở dữ liệu |
+| **Security** | Spring Security | `OAuth2 Resource Server` | Cấu hình filter chain & JWT decoder |
+| **JWT Library** | Nimbus JOSE-JWT | — | Mã hóa/giải mã JWT (thuộc Resource Server) |
+| **ORM** | Spring Data JPA | Hibernate | Quản lý và giao tiếp với Database |
+| **API Docs** | SpringDoc OpenAPI | `2.5.0` (Swagger UI) | Tự động sinh tài liệu API & thử nghiệm trực tiếp |
+| **Filter Query** | Spring Filter | `3.1.7` | Hỗ trợ tìm kiếm, lọc dữ liệu JPA động từ URL |
+| **Boilerplate** | Lombok | — | Tự động tạo Getter, Setter, Constructor... |
 
-- Java 17+
-- Maven 3.8+ (hoặc dùng `./mvnw` có sẵn)
-- MySQL đang chạy
+---
 
-### Bước 2 — Tạo database
+## 🚀 Hướng Dẫn Cài Đặt và Cấu Hình Khi Tái Sử Dụng
 
-```sql
-CREATE DATABASE clothing_shop_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-```
+Khi clone hoặc tái sử dụng dự án template này làm nền tảng cho dự án mới, hãy thực hiện theo đúng các bước sau đây:
 
-### Bước 3 — Cấu hình secret
+### Bước 1 — Refactor Package Gốc (Tùy chọn nhưng khuyến nghị)
+Mặc định dự án đang sử dụng package gốc là `com.template.manhpt`. Để thay đổi thành package của dự án mới:
+1. Mở dự án trong IDE (IntelliJ IDEA được khuyến nghị).
+2. Chuột phải vào thư mục `com.template.manhpt` ở mục `src/main/java`.
+3. Chọn **Refactor** -> **Rename** -> **Rename package**.
+4. Nhập tên package mới mong muốn (ví dụ: `com.company.project`) và chọn **Refactor** trên toàn dự án để tự động cập nhật mọi câu lệnh import.
 
-Mở file `src/main/resources/application-secret.properties` và điền:
+### Bước 2 — Khởi tạo Database
+Dự án được cấu hình kết nối mặc định tới Database `template_db`. 
+1. Khởi tạo một cơ sở dữ liệu MySQL mới:
+   ```sql
+   CREATE DATABASE ten_database_cua_ban CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+   ```
+2. Mở file [init_db.sql](file:///d:/IT/template/templateJWT/src/main/resources/init_db.sql), thay đổi câu lệnh `USE template_db;` ở dòng 2 thành tên database của bạn, sau đó chạy toàn bộ script để tạo cấu trúc bảng `user` chuẩn.
+3. Mở file [seed_test_data.sql](file:///d:/IT/template/templateJWT/src/main/resources/seed_test_data.sql), thay đổi câu lệnh `USE template_db;` thành tên database của bạn, sau đó chạy script để nạp 3 tài khoản kiểm thử mặc định (Mật khẩu đều là `123456`):
+   * **Nhân viên Bán hàng**: `sale01` (Role: `ROLE_SALE`)
+   * **Nhân viên CSKH**: `cs01` (Role: `ROLE_CS`)
+   * **Nhân viên Kho**: `wh01` (Role: `ROLE_WH`)
 
-```properties
-spring.datasource.password=mat_khau_mysql_cua_ban
-hoangmelinh.jwt.base64-secret=khoa_bi_mat_base64_it_nhat_64_ky_tu
-```
+### Bước 3 — Cấu hình File Connection & Secrets
+1. Mở file [application.properties](file:///d:/IT/template/templateJWT/src/main/resources/application.properties) tại mục `spring.datasource.url` và cập nhật lại tên database của bạn:
+   ```properties
+   spring.datasource.url=jdbc:mysql://localhost:3306/ten_database_cua_ban
+   ```
+2. Tạo mới hoặc chỉnh sửa file [application-secret.properties](file:///d:/IT/template/templateJWT/src/main/resources/application-secret.properties) tại thư mục `src/main/resources/` (đã được cấu hình `.gitignore` để không bị đẩy lên Git) và điền các thông tin bảo mật sau:
+   ```properties
+   spring.datasource.password=mat_khau_mysql_cua_ban
+   jwt.base64-secret=khoa_bi_mat_base64_it_nhat_64_ky_tu
+   ```
+   > [!TIP]
+   > **Tạo nhanh một JWT base64-secret dài (trên PowerShell):**
+   > ```powershell
+   > [Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes("day-la-khoa-bi-mat-cuc-ky-dai-va-an-toan-cho-thuat-toan-jwt-hmac-sha512-dung-cho-template"))
+   > ```
 
-> **Tạo JWT secret nhanh (PowerShell):**
-> ```powershell
-> [Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes("day-la-khoa-bi-mat-cuc-ky-dai-it-nhat-64-ky-tu-de-dung-cho-jwt-hmac-512"))
-> ```
-
-> File này đã được `.gitignore` — **KHÔNG commit** lên git.
-
-### Bước 4 — Chạy
-
+### Bước 4 — Khởi động dự án
+Sử dụng Maven để chạy ứng dụng:
 ```bash
+# Windows
+mvnw.cmd spring-boot:run
+
+# Linux / macOS
 ./mvnw spring-boot:run
 ```
 
-### Bước 5 — Kiểm tra
-
-- API: `http://localhost:8080`
-- Swagger UI: `http://localhost:8080/swagger-ui/index.html`
-
 ---
 
-## Cấu Trúc Dự Án Hiện Tại
+## 📂 Cấu Trúc Dự Án Chi Tiết
+
+Mã nguồn được tổ chức theo cấu trúc package chuẩn hóa và tách biệt nghiệp vụ rõ ràng:
 
 ```
-com.sapo.mock.clothing/
+com.template.manhpt/
 │
-├── ClothingShopPosApplication.java          ← Entry point
+├── ClothingShopPosApplication.java             ← Điểm khởi chạy ứng dụng (Entry Point)
 │
-├── config/                                   ← CẤU HÌNH HỆ THỐNG (đã xong, không cần sửa)
-│   ├── SecurityConfiguration.java            │  Spring Security + JWT filter chain
-│   ├── CorsConfig.java                       │  CORS cho frontend (localhost:3000, 5173)
-│   ├── CustomAuthenticationEntryPoint.java    │  Trả lỗi 401 theo format chuẩn
-│   ├── UserDetailsCustom.java                │  Load user từ DB cho Spring Security
-│   ├── JpaAuditingConfig.java                │  Tự động điền createdBy / updatedBy
-│   ├── OpenAPIConfig.java                    │  Swagger UI + Bearer token
-│   ├── DateTimeFormatConfiguration.java      │  Format ngày giờ ISO-8601
-│   ├── StaticResourcesWebConfiguration.java  │  Serve file upload qua /storage/**
-│   ├── PermissionInterceptor.java            │  Kiểm tra quyền từ DB mỗi request
-│   └── PermissionInterceptorConfiguration.java  Đăng ký interceptor
+├── config/                                     ← Các lớp cấu hình hệ thống
+│   ├── AuditConfig.java                        │  Cấu hình JPA Auditing (Tự động điền ID người dùng tạo/sửa - nếu dùng)
+│   ├── CorsConfig.java                         │  Cấu hình CORS (Cho phép kết nối từ localhost:3000, 5173...)
+│   ├── CustomAuthenticationEntryPoint.java     │  Custom định dạng phản hồi lỗi 401 Unauthorized theo JSON chuẩn
+│   ├── DateTimeFormatConfiguration.java        │  Cấu hình định dạng ngày giờ toàn cục (ISO-8601)
+│   ├── OpenAPIConfig.java                      │  Cấu hình Swagger UI hỗ trợ xác thực Bearer Token
+│   ├── PermissionInterceptor.java              │  Interceptor kiểm tra tài khoản hoạt động (Active) trên mỗi request
+│   ├── PermissionInterceptorConfiguration.java │  Đăng ký Interceptor vào luồng xử lý Spring MVC
+│   ├── SecurityConfiguration.java              │  Cấu hình Spring Security: Filter Chain, giải mã JWT, password encoder
+│   ├── StaticResourcesWebConfiguration.java    │  Ánh xạ tài nguyên tĩnh (Upload files) phục vụ qua /storage/**
+│   └── UserDetailsCustom.java                  │  Nạp thông tin đăng nhập từ cơ sở dữ liệu cho Spring Security
 │
-├── controller/                               ← CONTROLLER
-│   └── AuthController.java                   │  POST /login, /logout, /refresh, GET /account
-│
-├── service/                                  ← SERVICE
-│   ├── UserService.java                      │  CRUD user, hash password, refresh token
-│   └── RoleService.java                      │  CRUD role
-│
-├── domain/
-│   ├── entity/                               ← ENTITY (JPA)
-│   │   ├── BaseEntity.java                   │  Lớp cha: createdAt, updatedAt, createdBy, updatedBy
-│   │   ├── User.java                         │  Người dùng hệ thống
-│   │   ├── Role.java                         │  Vai trò (Admin, NV Bán hàng, NV CSKH, NV Kho)
-│   │   └── Permission.java                   │  Quyền: apiPath + method + module
-│   ├── request/
-│   │   └── ReqLoginDTO.java                  │  { username, password }
+├── common/                                     ← Cấu trúc phản hồi và xử lý lỗi dùng chung toàn cục
+│   ├── exception/
+│   │   ├── BadRequestException.java            │  Lỗi dữ liệu đầu vào không hợp lệ (400)
+│   │   ├── BusinessException.java              │  Lớp ngoại lệ cha phục vụ nghiệp vụ logic
+│   │   ├── GlobalExceptionHandler.java         │  Bắt toàn bộ các lỗi phát sinh để trả về định dạng RestResponse JSON
+│   │   ├── IdInvalidException.java             │  Lỗi mã ID không hợp lệ hoặc không tồn tại (400)
+│   │   ├── PermissionException.java            │  Lỗi từ chối quyền truy cập (403)
+│   │   └── ResourceNotFoundException.java      │  Lỗi không tìm thấy tài nguyên trong DB (404)
 │   └── response/
-│       ├── RestResponse.java                 │  { statusCode, error, message, data }
-│       ├── ResLoginDTO.java                  │  { access_token, user }
-│       └── ResultPaginationDTO.java          │  { meta, result }
+│       ├── RestResponse.java                   │  Định dạng JSON chuẩn trả về Client {statusCode, error, message, data}
+│       └── ResultPaginationDTO.java            │  Định dạng phân trang chuẩn cho các danh sách {meta, result}
 │
-├── repository/                               ← REPOSITORY
-│   ├── UserRepository.java
-│   ├── RoleRepository.java
-│   └── PermissionRepository.java
+├── auth/                                       ← Nghiệp vụ Đăng nhập & Xác thực
+│   ├── controller/
+│   │   └── AuthController.java                 │  Endpoints xử lý login, register, logout, refresh, get account
+│   ├── service/
+│   │   └── AuthService.java                    │  Logic xác thực tài khoản, so khớp password hash, lưu refresh token
+│   └── DTO/
+│       ├── ReqLoginDTO.java                    │  Dữ liệu đăng nhập gửi lên {username, password}
+│       ├── ReqRegisterDTO.java                 │  Dữ liệu đăng ký tài khoản mới gửi lên
+│       └── ResLoginDTO.java                    │  Dữ liệu trả về sau đăng nhập {access_token, user}
 │
-└── util/                                     ← UTILITIES
-    ├── SecurityUtil.java                     │  Tạo/decode JWT, lấy user hiện tại
-    ├── FormatRestResponse.java               │  Auto-wrap response → RestResponse
+├── user/                                       ← Nghiệp vụ quản lý Người dùng
+│   ├── entity/
+│   │   └── User.java                           │  Entity User chứa các trường thông tin người dùng và RoleEnum
+│   ├── repository/
+│   │   └── UserRepository.java                 │  Tương tác cơ sở dữ liệu bảng user
+│   └── service/
+│       └── UserService.java                    │  Logic xử lý CRUD User, tạo mới, băm password, quản lý refresh token
+│
+└── util/                                       ← Tiện ích hỗ trợ
+    ├── SecurityUtil.java                       │  Cung cấp các hàm sinh Access Token, Refresh Token, lấy User ID hiện tại
+    ├── FormatRestResponse.java                 │  Controller Advice tự động bọc mọi Response thành RestResponse chuẩn
     ├── annotation/
-    │   └── ApiMessage.java                   │  Annotation đặt message cho API
-    ├── constant/
-    │   └── GenderEnum.java                   │  MALE, FEMALE, OTHER
-    └── error/
-        ├── GlobalExceptionHandler.java       │  Bắt tất cả exception → RestResponse
-        ├── IdInvalidException.java
-        ├── ResourceNotFoundException.java
-        ├── StorageException.java
-        └── PermissionException.java
+    │   └── ApiMessage.java                     │  Annotation cấu hình thông điệp (Message) trả về cho mỗi API
+    └── constant/
+        ├── GenderEnum.java                     │  Enum định nghĩa giới tính: MALE, FEMALE, OTHER
+        └── RoleEnum.java                       │  Enum phân quyền: ROLE_SALE, ROLE_CS, ROLE_WH
 ```
 
 ---
 
-## JWT Authentication — Cách Hoạt Động
+## 🔐 Phân Quyền Bằng Annotation (Method Security)
 
-### Flow đăng nhập
+Dự án đã được bật sẵn tính năng phân quyền theo phương thức với `@EnableMethodSecurity(securedEnabled = true)` tại [SecurityConfiguration.java](file:///d:/IT/template/templateJWT/src/main/java/com/template/manhpt/config/SecurityConfiguration.java).
 
-```
-Client                          Server
-  │                               │
-  │── POST /api/v1/auth/login ──► │  Gửi { username, password }
-  │                               │  → Xác thực với DB
-  │◄── access_token + cookie ──── │  → Trả access_token (body) + refresh_token (cookie)
-  │                               │
-  │── GET /api/v1/xxx ──────────► │  Gửi kèm header: Authorization: Bearer <access_token>
-  │◄── data ─────────────────── │  → Trả dữ liệu nếu có quyền
-  │                               │
-  │── GET /api/v1/auth/refresh ─► │  Gửi cookie refresh_token
-  │◄── new access_token ───────── │  → Cấp access_token mới
-```
+Để giới hạn quyền truy cập một API cho một số vai trò cụ thể, bạn chỉ cần sử dụng annotation `@PreAuthorize` trên method của Controller. 
 
-### API Auth có sẵn
-
-| Method | Endpoint | Mô tả | Auth? |
-|---|---|---|---|
-| `POST` | `/api/v1/auth/login` | Đăng nhập | ❌ |
-| `GET` | `/api/v1/auth/account` | Lấy thông tin tài khoản | ✅ |
-| `GET` | `/api/v1/auth/refresh` | Làm mới access token | ❌ (dùng cookie) |
-| `POST` | `/api/v1/auth/logout` | Đăng xuất | ✅ |
-
-### Ví dụ gọi API đăng nhập
-
-```bash
-curl -X POST http://localhost:8080/api/v1/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"username": "admin@sapo.vn", "password": "123456"}'
-```
-
-Response:
-```json
-{
-  "statusCode": 200,
-  "error": null,
-  "message": "Đăng nhập thành công",
-  "data": {
-    "access_token": "eyJhbGciOiJIUzUxMiJ9...",
-    "user": {
-      "id": 1,
-      "email": "admin@sapo.vn",
-      "name": "Admin",
-      "role": { "id": 1, "name": "ADMIN" }
-    }
-  }
-}
-```
-
-### Gọi API có bảo mật
-
-```bash
-curl -X GET http://localhost:8080/api/v1/xxx \
-  -H "Authorization: Bearer eyJhbGciOiJIUzUxMiJ9..."
-```
-
----
-
-## Cách Viết Code Mới (Hướng Dẫn Cho Nhóm)
-
-### 1. Tạo Entity mới
-
-Tạo file trong `domain/entity/`, kế thừa `BaseEntity`:
-
+**Ví dụ thực tế:**
 ```java
-@Entity
-@Table(name = "ten_bang")
-@Getter @Setter
-public class TenEntity extends BaseEntity {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @NotBlank(message = "Tên không được để trống")
-    private String name;
-
-    // ... các field khác
+// Chỉ người dùng có vai trò ROLE_WH (Kho) mới được phép gọi API này
+@PostMapping("/import-stock")
+@PreAuthorize("hasRole('ROLE_WH')")
+@ApiMessage("Nhập kho hàng thành công")
+public ResponseEntity<?> importStock(@RequestBody StockRequest req) {
+    return ResponseEntity.ok(stockService.process(req));
 }
-```
 
-> `BaseEntity` tự động thêm: `createdAt`, `updatedAt`, `createdBy`, `updatedBy`.
-
-### 2. Tạo Repository
-
-Tạo file trong `repository/`:
-
-```java
-@Repository
-public interface TenEntityRepository
-    extends JpaRepository<TenEntity, Long>, JpaSpecificationExecutor<TenEntity> {
-    // Thêm custom query nếu cần
-}
-```
-
-### 3. Tạo Service
-
-Tạo file trong `service/`:
-
-```java
-@Service
-public class TenEntityService {
-
-    private final TenEntityRepository tenEntityRepository;
-
-    public TenEntityService(TenEntityRepository tenEntityRepository) {
-        this.tenEntityRepository = tenEntityRepository;
-    }
-
-    /**
-     * Lấy danh sách có phân trang.
-     *
-     * @param pageable thông tin phân trang (page, size, sort)
-     * @return ResultPaginationDTO chứa data + meta phân trang
-     */
-    public ResultPaginationDTO getAll(Pageable pageable) {
-        // ... xử lý
-    }
-}
-```
-
-### 4. Tạo Controller
-
-Tạo file trong `controller/`:
-
-```java
-@RestController
-@RequestMapping("/api/v1/ten-entity")
-@Tag(name = "Tên Module")
-public class TenEntityController {
-
-    private final TenEntityService tenEntityService;
-
-    // Inject qua constructor
-
-    @GetMapping(".json")
-    @ApiMessage("Lấy danh sách thành công")
-    @SecurityRequirement(name = "bearerAuth")
-    public ResponseEntity<ResultPaginationDTO> getAll(Pageable pageable) {
-        return ResponseEntity.ok(tenEntityService.getAll(pageable));
-    }
-
-    @PostMapping(".json")
-    @ApiMessage("Tạo mới thành công")
-    @SecurityRequirement(name = "bearerAuth")
-    public ResponseEntity<TenEntity> create(@Valid @RequestBody TenEntity entity) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(tenEntityService.create(entity));
-    }
-}
-```
-
-### 5. Thêm Permission cho API mới
-
-Sau khi tạo API, thêm record vào bảng `permissions`:
-
-```sql
-INSERT INTO permissions (name, api_path, method, module)
-VALUES ('Xem danh sách sản phẩm', '/api/v1/products', 'GET', 'PRODUCTS');
-```
-
-Sau đó gán permission đó vào role tương ứng trong bảng `permission_role`.
-
----
-
-## Response Format Chuẩn
-
-**Mọi API đều tự động trả về format này** (nhờ `FormatRestResponse`):
-
-### Thành công
-```json
-{
-  "statusCode": 200,
-  "error": null,
-  "message": "Lấy danh sách thành công",
-  "data": { ... }
-}
-```
-
-### Lỗi validation
-```json
-{
-  "statusCode": 400,
-  "error": "Dữ liệu đầu vào không hợp lệ",
-  "message": ["name: Tên không được để trống", "price: Giá phải lớn hơn 0"],
-  "data": null
-}
-```
-
-### Lỗi không có quyền
-```json
-{
-  "statusCode": 403,
-  "error": "Không có quyền truy cập",
-  "message": "Bạn không có quyền thực hiện thao tác này",
-  "data": null
+// Cho phép nhiều vai trò cùng truy cập (Bán hàng HOẶC Kho)
+@GetMapping("/inventory")
+@PreAuthorize("hasAnyRole('ROLE_SALE', 'ROLE_WH')")
+@ApiMessage("Lấy thông tin tồn kho thành công")
+public ResponseEntity<?> getInventory() {
+    return ResponseEntity.ok(inventoryService.getAll());
 }
 ```
 
 ---
 
-## Quy Tắc Coding (Bắt Buộc)
+## 📝 Quy Tắc Phát Triển Bắt Buộc (Coding Guidelines)
 
-1. **Tên biến, method bằng tiếng Anh**, có nghĩa rõ ràng
-2. **Mọi method trong service phải có JavaDoc** (`@param`, `@return`, mục đích)
-3. **Validate trên server** — không tin dữ liệu từ client, dùng `@Valid` + `@NotBlank`, `@Min`...
-4. **API path theo convention**: `GET /api/v1/products.json`, `POST /api/v1/orders.json`
-5. **Chia nhỏ method** — không viết method quá dài, tách helper functions
-6. **Dùng `@Transactional`** khi thao tác nhiều bảng cùng lúc (VD: tạo đơn hàng + trừ kho)
-7. **Message lỗi rõ ràng** — dùng `@ApiMessage` và throw exception với message cụ thể
+1. **Đặt tên logic**: Tên class, tên biến, phương thức và API endpoint bắt buộc viết bằng **tiếng Anh** chuẩn, ngắn gọn và tường minh.
+2. **API Endpoint Convention**: Sử dụng danh từ số nhiều làm tài nguyên. Ví dụ: `/api/v1/products` thay vì `/api/v1/getProduct` hay `/api/v1/product/all`.
+3. **Mã hóa mật khẩu**: Tuyệt đối không lưu mật khẩu dạng plain-text. Luôn băm mật khẩu bằng `BCryptPasswordEncoder` (được inject tự động qua Spring Security).
+4. **Validation**: Validate tất cả các dữ liệu truyền vào Controller bằng annotation của gói `jakarta.validation.constraints` kết hợp `@Valid` tại API request body.
+5. **Viết JavaDoc đầy đủ**: Bắt buộc viết tài liệu JavaDoc giải thích chức năng, tham số truyền vào (`@param`) và giá trị trả về (`@return`) đối với mọi method xử lý nghiệp vụ trong các lớp Service.
+6. **Xử lý giao dịch**: Sử dụng `@Transactional` của Spring Framework đối với các phương thức nghiệp vụ thực hiện ghi/sửa dữ liệu trên nhiều bảng khác nhau để đảm bảo tính toàn vẹn dữ liệu (Atomicity).

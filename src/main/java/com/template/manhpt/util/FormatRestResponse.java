@@ -1,6 +1,6 @@
 package com.template.manhpt.util;
 
-import com.template.manhpt.auth.DTO.RestResponse;
+import com.template.manhpt.common.response.RestResponse;
 import com.template.manhpt.util.annotation.ApiMessage;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.core.MethodParameter;

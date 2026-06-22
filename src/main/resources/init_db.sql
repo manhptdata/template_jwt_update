@@ -1,5 +1,5 @@
-CREATE DATABASE IF NOT EXISTS clothing_shop_db DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE clothing_shop_db;
+CREATE DATABASE IF NOT EXISTS template_db DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE template_db;
 
 -- Xóa bảng nếu đã tồn tại để tránh lỗi khi chạy lại
 DROP TABLE IF EXISTS `user`;

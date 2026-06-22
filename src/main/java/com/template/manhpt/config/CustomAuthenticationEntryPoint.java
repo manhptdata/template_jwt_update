@@ -1,7 +1,7 @@
 package com.template.manhpt.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.template.manhpt.auth.DTO.RestResponse;
+import com.template.manhpt.common.response.RestResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
